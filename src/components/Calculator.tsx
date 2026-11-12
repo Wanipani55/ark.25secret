@@ -92,7 +92,7 @@ export default function Calculator() {
                   id="multH1"
                   value={multH1}
                   onChange={v => { setMultH1(v); setResult(null) }}
-                  hint="会社から通知された係数をそのまま入力してください（例: 25）"
+                  hint="会社から通知された係数をそのまま入力してください（万円単位。例: 25）"
                 />
 
                 <SectionDivider label="下期（冬季・12月支給）" color="green" />
@@ -111,7 +111,7 @@ export default function Calculator() {
                   id="multH2"
                   value={multH2}
                   onChange={v => { setMultH2(v); setResult(null) }}
-                  hint="会社から通知された係数をそのまま入力してください（例: 25）"
+                  hint="会社から通知された係数をそのまま入力してください（万円単位。例: 25）"
                 />
               </div>
 

@@ -23,8 +23,8 @@ const INDEX_TABLE: Record<Grade, { variable: Record<EvaluationRank, number>; fla
   'V':    { flat: 2.5, variable: { A:8.800, B1:7.975, B2:7.150, C1:6.325, C2:5.500, C3:4.675, D1:3.850, D2:3.025, E:0.000 } },
 }
 
-/** 規程 第25条4項：基準単価 250,000円 */
-const BASE_UNIT_PRICE = 250_000
+/** 規程 第25条4項：基準単価 25（万円単位） */
+const BASE_UNIT_PRICE = 25
 
 export interface BonusInput {
   grade: Grade
@@ -103,11 +103,13 @@ function calcProvisionalBonus(
   const flatBonus           = flatUnitPrice * idx.flat
   const varBonusProvisional = varUnitPrice  * idx.variable['D1']
 
+  // 万円単位 → 円に変換（×10,000）
+  const toYen = (v: number) => Math.round(v * 10_000)
   return {
-    flat:      Math.round(flatBonus),
-    variable:  Math.round(varBonusProvisional),
-    total:     Math.round(flatBonus + varBonusProvisional),
-    unitPrice: Math.round(unitPrice),
+    flat:      toYen(flatBonus),
+    variable:  toYen(varBonusProvisional),
+    total:     toYen(flatBonus + varBonusProvisional),
+    unitPrice: toYen(unitPrice),
   }
 }
 
@@ -131,12 +133,14 @@ function calcMainBonus(
   const idx = INDEX_TABLE[grade]
 
   const calc = (rank: EvaluationRank, coefficient: number) => {
-    const unitPrice  = coefficient                        // 指数単価 = 係数（円）
+    const unitPrice  = coefficient                        // 指数単価 = 係数（万円）
     const ratio      = coefficient / BASE_UNIT_PRICE      // 基準単価との比率
     const flatUnitPrice = ratio > 1.0 ? BASE_UNIT_PRICE : unitPrice
     const varUnitPrice  = unitPrice
-    const flat     = Math.round(flatUnitPrice * idx.flat)
-    const variable = Math.round(varUnitPrice  * idx.variable[rank])
+    // 万円単位 → 円に変換（×10,000）
+    const toYen = (v: number) => Math.round(v * 10_000)
+    const flat     = toYen(flatUnitPrice * idx.flat)
+    const variable = toYen(varUnitPrice  * idx.variable[rank])
     return { flat, variable }
   }
 
