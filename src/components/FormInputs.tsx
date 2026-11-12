@@ -80,16 +80,15 @@ export function MultiplierInput({ label, id, value, onChange, hint }: Multiplier
         <input
           id={id}
           type="number"
-          step="0.01"
+          step="1"
           min="0"
-          max="5"
           value={value}
           onChange={e => onChange(e.target.value)}
           className="carbon-input pr-16"
-          placeholder="1.00"
+          placeholder="例: 25"
         />
         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-carbon-500 text-xs font-mono pointer-events-none">
-          倍率
+          係数
         </span>
       </div>
       {hint && <p className="mt-1.5 text-xs text-carbon-500">{hint}</p>}

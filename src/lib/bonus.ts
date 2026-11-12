@@ -32,10 +32,10 @@ export interface BonusInput {
   rankH1: EvaluationRank
   /** 下期（冬季）評価ランク */
   rankH2: EvaluationRank
-  /** 夏季賞与係数（会社が決定した変動単価 or 指数単価 / 基準単価比率） */
-  multiplierH1: number
+  /** 夏季賞与係数（会社から通知される係数。例: 25 → 250,000円÷基準単価で内部計算） */
+  coefficientH1: number
   /** 冬季賞与係数 */
-  multiplierH2: number
+  coefficientH2: number
 }
 
 export interface BonusResult {
@@ -69,20 +69,21 @@ export interface BonusResult {
 /**
  * 暫定賞与の計算（別紙１ (2)）
  *
- * 社内運用として「係数（multiplier）= 変動単価 / 基準単価」を入力する形とし、
- * 変動単価 = BASE_UNIT_PRICE × multiplier で算出する。
- * 指数単価 ≦ 基準単価の場合、一律単価＝変動単価＝指数単価となるため、
- * 係数が 1.0 以下のとき一律単価も同じ指数単価を使う。
- * 係数が 1.0 超のとき（指数単価＞基準単価）、一律単価は基準単価、
- * 変動単価を指数単価とする（規程 別紙１ (2)③ただし書き適用）。
+ * coefficient: 社内で通知される賞与係数（例: 25, 30 など）
+ * 指数単価 = coefficient / BASE_UNIT_PRICE（25万円）で倍率を算出。
+ * 係数が基準単価を超えるとき（倍率 > 1.0）:
+ *   一律単価=基準単価、変動単価=指数単価（規程 別紙１ (2)③ただし書き適用）
+ * 係数が基準単価以下のとき（倍率 ≤ 1.0）:
+ *   一律単価=変動単価=指数単価
  */
 function calcProvisionalBonus(
   grade: Grade,
   _rank: EvaluationRank,
-  multiplier: number,
+  coefficient: number,
 ): { flat: number; variable: number; total: number; unitPrice: number } {
   const idx = INDEX_TABLE[grade]
-  const unitPrice = BASE_UNIT_PRICE * multiplier
+  const unitPrice = coefficient                         // 指数単価 = 係数そのもの（円）
+  const multiplier = coefficient / BASE_UNIT_PRICE     // 基準単価との比率
 
   let flatUnitPrice: number
   let varUnitPrice: number
@@ -120,8 +121,8 @@ function calcMainBonus(
   grade: Grade,
   rankH1: EvaluationRank,
   rankH2: EvaluationRank,
-  multiplierH1: number,
-  multiplierH2: number,
+  coefficientH1: number,
+  coefficientH2: number,
 ): {
   flatH1: number; variableH1: number
   flatH2: number; variableH2: number
@@ -129,17 +130,18 @@ function calcMainBonus(
 } {
   const idx = INDEX_TABLE[grade]
 
-  const calc = (rank: EvaluationRank, multiplier: number) => {
-    const unitPrice = BASE_UNIT_PRICE * multiplier
-    const flatUnitPrice = multiplier > 1.0 ? BASE_UNIT_PRICE : unitPrice
-    const varUnitPrice  = multiplier > 1.0 ? unitPrice       : unitPrice
+  const calc = (rank: EvaluationRank, coefficient: number) => {
+    const unitPrice  = coefficient                        // 指数単価 = 係数（円）
+    const ratio      = coefficient / BASE_UNIT_PRICE      // 基準単価との比率
+    const flatUnitPrice = ratio > 1.0 ? BASE_UNIT_PRICE : unitPrice
+    const varUnitPrice  = unitPrice
     const flat     = Math.round(flatUnitPrice * idx.flat)
     const variable = Math.round(varUnitPrice  * idx.variable[rank])
     return { flat, variable }
   }
 
-  const h1 = calc(rankH1, multiplierH1)
-  const h2 = calc(rankH2, multiplierH2)
+  const h1 = calc(rankH1, coefficientH1)
+  const h2 = calc(rankH2, coefficientH2)
 
   return {
     flatH1:     h1.flat,
@@ -154,11 +156,11 @@ function calcMainBonus(
  * メイン計算関数
  */
 export function calculateBonus(input: BonusInput): BonusResult {
-  const { grade, rankH1, rankH2, multiplierH1, multiplierH2 } = input
+  const { grade, rankH1, rankH2, coefficientH1, coefficientH2 } = input
 
-  const june     = calcProvisionalBonus(grade, rankH1, multiplierH1)
-  const december = calcProvisionalBonus(grade, rankH2, multiplierH2)
-  const main     = calcMainBonus(grade, rankH1, rankH2, multiplierH1, multiplierH2)
+  const june     = calcProvisionalBonus(grade, rankH1, coefficientH1)
+  const december = calcProvisionalBonus(grade, rankH2, coefficientH2)
+  const main     = calcMainBonus(grade, rankH1, rankH2, coefficientH1, coefficientH2)
 
   // 2月支給 = 本賞与 - 6月暫定 - 12月暫定（別紙１ (3)⑥）
   const adjustment = main.annualBonus - june.total - december.total

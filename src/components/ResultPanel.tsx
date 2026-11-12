@@ -182,9 +182,9 @@ function IndexBadge({ flat, variable, label }: { flat: number; variable: number;
 function MultiplierNote({ multiplier, unitPrice }: { multiplier: number; unitPrice: number }) {
   return (
     <div className="mt-3 pt-3 border-t border-carbon-700/50 flex items-center justify-between">
-      <span className="text-xs text-carbon-600">賞与係数 × 基準単価</span>
+      <span className="text-xs text-carbon-600">賞与係数 → 指数単価</span>
       <span className="text-xs font-mono text-carbon-500">
-        {multiplier.toFixed(2)}× → {formatJPY(unitPrice)}
+        {multiplier} → {formatJPY(unitPrice)}
       </span>
     </div>
   )

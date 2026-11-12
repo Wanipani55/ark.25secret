@@ -12,8 +12,8 @@ export default function Calculator() {
   const [grade, setGrade] = useState<Grade>('II-1')
   const [rankH1, setRankH1] = useState<EvaluationRank>('C2')
   const [rankH2, setRankH2] = useState<EvaluationRank>('C2')
-  const [multH1, setMultH1] = useState('1.00')
-  const [multH2, setMultH2] = useState('1.00')
+  const [multH1, setMultH1] = useState('')
+  const [multH2, setMultH2] = useState('')
   const [result, setResult] = useState<BonusResult | null>(null)
 
   const handleCalculate = useCallback(() => {
@@ -22,8 +22,8 @@ export default function Calculator() {
     if (isNaN(m1) || isNaN(m2) || m1 <= 0 || m2 <= 0) return
     setResult(calculateBonus({
       grade, rankH1, rankH2,
-      multiplierH1: m1,
-      multiplierH2: m2,
+      coefficientH1: m1,
+      coefficientH2: m2,
     }))
   }, [grade, rankH1, rankH2, multH1, multH2])
 
@@ -92,7 +92,7 @@ export default function Calculator() {
                   id="multH1"
                   value={multH1}
                   onChange={v => { setMultH1(v); setResult(null) }}
-                  hint="指数単価 ÷ 基準単価（250,000円）の比率。1.0以下なら一律・変動単価ともに指数単価。"
+                  hint="会社から通知された係数をそのまま入力してください（例: 25）"
                 />
 
                 <SectionDivider label="下期（冬季・12月支給）" color="green" />
@@ -111,7 +111,7 @@ export default function Calculator() {
                   id="multH2"
                   value={multH2}
                   onChange={v => { setMultH2(v); setResult(null) }}
-                  hint="指数単価 ÷ 基準単価（250,000円）の比率。"
+                  hint="会社から通知された係数をそのまま入力してください（例: 25）"
                 />
               </div>
 
