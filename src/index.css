@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-carbon-950 text-carbon-50;
+  }
+
+  * {
+    @apply border-carbon-700;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-carbon-900;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-carbon-600 rounded-sm;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-carbon-500;
+  }
+}
+
+@layer components {
+  .carbon-input {
+    @apply w-full bg-carbon-800 border border-carbon-600 text-carbon-50 px-4 py-3
+           focus:outline-none focus:border-blue-60 focus:ring-1 focus:ring-blue-60
+           transition-colors duration-150 font-mono text-sm;
+  }
+
+  .carbon-select {
+    @apply w-full bg-carbon-800 border border-carbon-600 text-carbon-50 px-4 py-3
+           focus:outline-none focus:border-blue-60 focus:ring-1 focus:ring-blue-60
+           transition-colors duration-150 text-sm appearance-none cursor-pointer;
+  }
+
+  .carbon-label {
+    @apply block text-xs font-medium text-carbon-300 uppercase tracking-widest mb-2;
+  }
+
+  .carbon-btn-primary {
+    @apply bg-blue-60 hover:bg-blue-70 text-white px-8 py-3 text-sm font-medium
+           transition-colors duration-150 focus:outline-none focus:ring-2
+           focus:ring-blue-40 focus:ring-offset-2 focus:ring-offset-carbon-900
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .result-card {
+    @apply bg-carbon-800 border border-carbon-700 p-6 relative overflow-hidden;
+  }
+
+  .result-card::before {
+    content: '';
+    @apply absolute top-0 left-0 w-1 h-full;
+  }
+
+  .result-card-june::before  { @apply bg-cyan-40; }
+  .result-card-dec::before   { @apply bg-green-40; }
+  .result-card-feb::before   { @apply bg-blue-40; }
+  .result-card-total::before { @apply bg-yellow-30; }
+}
